@@ -14,6 +14,11 @@ const UserSchema = new Schema(
       enum: ["admin", "student"],
       default: "student",
     },
+    status: {
+      type: String,
+      enum: ["unverified", "verified","banned"],
+      default: "unverified",
+    },
     enrolledCourses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
     userImage: String,
   },
