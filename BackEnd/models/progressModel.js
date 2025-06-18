@@ -7,7 +7,7 @@ const ProgressSchema = new Schema(
     courseId: { type: Schema.Types.ObjectId, ref: "Course" },
     completedLessons: [{ type: Schema.Types.ObjectId, ref: "Lesson" }],
   },
-  { timestamps: true }
+  { timestamps: true, collection: "progress" }
 );
 
 ProgressSchema.index({ studentId: 1, courseId: 1 });
