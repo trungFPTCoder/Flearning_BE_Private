@@ -8,7 +8,7 @@ const LectureSchema = new Schema(
     description: String,
     note: String,
   },
-  { timestamps: true }
+  { timestamps: true, collection: "lectures" }
 );
 
 module.exports = mongoose.model("Lecture", LectureSchema);
