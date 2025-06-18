@@ -1,3 +1,5 @@
+## PR AND Commit Rule
+
 # 📘 Quy tắc Commit theo chuẩn Conventional Commits
 
 ## ✅ Mục tiêu
@@ -12,44 +14,48 @@
 
 ## 🎯 Cấu trúc commit message
 
-[ID Jira][Committer][Function]<mô tả ngắn gọn thay đổi> <Day Commit DD/MM/YYYY>
+```
+[JiraTicket_ID][Committer][UI/BE/API] Commit message [DD.MM.YYYY]
+```
 
 ### 🔍 Ví dụ:
 
-[SMS-4][Hoang][UI] Update header component #16.05.2025
+```
+[FLN-4][Hoang][UI] Update header component [16.05.2025]
+```
 
-📌 _Lưu ý:_ Mục đích là để dễ tra lại task để fix lỗi sau này và quản lý người handle task đó.
+📌 _Lưu ý:_ Giúp dễ tra lại task, hỗ trợ review và tracking người xử lý.
 
 ---
 
 ## 🗂 Các loại function
 
-| Function | Mô tả                       |
-| -------- | --------------------------- |
-| `UI`     | Handle giao diện người dùng |
-| `BE`     | Handle logic và backend     |
+| Function | Mô tả                            |
+| -------- | -------------------------------- |
+| `UI`     | Giao diện người dùng             |
+| `BE`     | Logic, xử lý phía backend        |
+| `API`    | Kết nối giữa frontend và backend |
 
 ---
 
 ## 🗂 Các loại commit
 
-| Type       | Mô tả                                                        |
-| ---------- | ------------------------------------------------------------ |
-| `feat`     | Thêm tính năng mới                                           |
-| `fix`      | Sửa lỗi                                                      |
-| `docs`     | Cập nhật tài liệu (README, Wiki, ...)                        |
-| `style`    | Thay đổi định dạng code (không ảnh hưởng đến logic)          |
-| `refactor` | Cải tổ lại code cho sạch, dễ hiểu (không thêm chức năng mới) |
-| `test`     | Thêm hoặc chỉnh sửa test                                     |
-| `chore`    | Thay đổi phụ trợ như cấu hình, build, cập nhật dependencies  |
-| `perf`     | Cải thiện hiệu năng                                          |
+| Type       | Mô tả                                                     |
+| ---------- | --------------------------------------------------------- |
+| `feat`     | Thêm tính năng mới                                        |
+| `fix`      | Sửa lỗi                                                   |
+| `docs`     | Cập nhật tài liệu (README, Wiki, ...)                     |
+| `style`    | Thay đổi định dạng code, không ảnh hưởng logic            |
+| `refactor` | Cải tổ lại code, không thêm tính năng                     |
+| `test`     | Thêm hoặc chỉnh sửa test                                  |
+| `chore`    | Thay đổi phụ trợ như config, build, cập nhật dependencies |
+| `perf`     | Cải thiện hiệu năng                                       |
 
 ---
 
 ## 🧩 Quy định bổ sung
 
-- ❌ **Toàn bộ commit và pull request phải được viết bằng tiếng Anh.**
-- ✅ **Phải review lại code cẩn thận trước khi commit.**
+- ✅ **Luôn tự review lại code trước khi commit.**
 
 ---
 
@@ -57,20 +63,22 @@
 
 ### ✔ Cấu trúc:
 
-<type>/<screen>-<ui|be>
+```
+<type>/<JiraTicketID>_<screen>-<ui|be|api>
+```
 
 ### 📌 Ví dụ:
 
-- `feature/login-ui`
-- `feature/product-detail-be`
-- `bugfix/email-sending-ui`
-- `refactor/api-handler-be`
+- `feature/FLN-1_Login-UI`
+- `feature/FLN-2_ProductDetail-BE`
+- `bugfix/FLN-3_EmailSending-UI`
+- `refactor/FLN-4_ApiHandler-API`
 
 ### 📎 Ghi chú:
 
-- Trong giai đoạn đầu, branch thường sẽ là `feature/*` cho tất cả các chức năng mới.
-- Sau này sẽ bổ sung thêm các nhánh `bugfix`, `refactor` khi phát sinh nhu cầu.
-- Mỗi branch nên rõ ràng phần nào thuộc **UI** hay **BE** thông qua hậu tố `-ui` hoặc `-be`.
+- Giai đoạn đầu nên dùng `feature/*` cho chức năng mới.
+- Có thể thêm `bugfix`, `refactor`, `hotfix` tùy nhu cầu về sau.
+- Hậu tố `-UI`, `-BE`, `-API` giúp phân biệt nhanh vùng code chịu trách nhiệm.
 
 ---
 
@@ -78,7 +86,9 @@
 
 ### ✅ Tiêu đề PR
 
+```
 [function][type] <mô tả ngắn gọn thay đổi>
+```
 
 #### 📌 Ví dụ:
 
@@ -89,40 +99,68 @@
 
 ### 📄 Nội dung PR bắt buộc phải có:
 
-1. **Mô tả tổng quan (Overview)**
+1. **Overview – Mô tả tổng quan**
 
-   - Giải thích ngắn gọn thay đổi gì, tại sao cần thay đổi này.
+   - Giải thích ngắn gọn bạn đã thay đổi gì và lý do tại sao.
 
-2. **Liên kết task (Jira/Trello/GitHub Project)**
-   - Gắn link task tương ứng để dễ truy xuất.
+2. **Jira Link – Liên kết task Jira**
 
----
+   - Gắn link task Jira theo mẫu:
 
-<!-- KHÔNG CẦN ĐOẠN NÀY, ĐỌC THÊM -->
-<!-- 3. **Cách kiểm tra (How to test)**
+     ```
+     Jira Ticket: https://your-domain.atlassian.net/browse/PROJECT-123
+     ```
 
-   - Mô tả bước để test tính năng hoặc bug fix.
-   - Ưu tiên thêm ảnh/gif nếu có giao diện.
+3. **EVD – Evidence**
 
-4. **Ảnh chụp màn hình (nếu thay đổi UI)**
-
-   - Đính kèm ảnh trước/sau nếu có thay đổi giao diện.
-
-5. **Checklists**
-   - [ ] Đã test đầy đủ trước khi tạo PR
-   - [ ] Đã tự review lại code
-   - [ ] Đảm bảo không commit các file không cần thiết (VD: `.env`, `node_modules`, build folder, v.v.)
-   - [ ] Đã đặt tên branch, commit theo đúng quy định -->
+   - Chèn ảnh chụp màn hình, video hoặc output liên quan (nếu có UI thay đổi hoặc logic dễ gây bug).
 
 ---
 
 ### 🔍 Review và Merge
 
-- Tối thiểu **1-2 reviewer** được assign để kiểm tra PR.
-- ❌ **Không tự ý merger** nếu chưa có approval từ reviewer (trừ trường hợp khẩn cấp và phải thông báo trước).
+- Tối thiểu **1–2 reviewer** phải được assign để review.
+- ❌ **Không tự ý merge** nếu chưa có approval (trừ trường hợp khẩn cấp và phải báo trước).
 
 ---
 
 ### 🧹 Sau khi merge
 
-- Cập nhật trạng thái task trên hệ thống quản lý công việc (Jira/Trello/...).
+- Cập nhật trạng thái task tương ứng trong hệ thống Jira.
+
+---
+
+## ✅ Gợi ý template PR nhanh (Markdown):
+
+```markdown
+### Overview
+
+[Giải thích ngắn gọn về thay đổi]
+
+---
+
+### Check list
+
+**Checklists**
+
+- [ ] Đã test đầy đủ trước khi tạo PR
+- [ ] Đã tự review lại code
+- [ ] Đảm bảo không commit các file không cần thiết (VD: `.env`, `node_modules`, build folder, v.v.)
+- [ ] Đã đặt tên branch, commit theo đúng quy định
+- [ ] Add Reviewers và Assignees
+- [ ] Add Labels
+
+---
+
+### Jira Ticket
+
+https://your-domain.atlassian.net/browse/PROJECT-123
+
+---
+
+### EVD
+
+[Ảnh chụp màn hình hoặc output kết quả]
+```
+
+---
