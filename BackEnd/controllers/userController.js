@@ -82,3 +82,19 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
     }
 };
+
+/**
+ * @desc    Get user profile
+ * @route   GET /api/user/profile
+ * @access  Private
+ */
+exports.getUserProfile = async (req, res) => {
+    // req.user được thêm vào từ authMiddleware
+    const user = await User.findById(req.user.id).select('-password');
+
+    if (user) {
+        res.json(user);
+    } else {
+        res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+};
