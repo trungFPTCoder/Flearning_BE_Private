@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const SectionSchema = new Schema(
   {
     name: String,
-    lectures: [{ type: Schema.Types.ObjectId, ref: "Lecture" }],
+    courseId: [{ type: Schema.Types.ObjectId, ref: "Course" }],
   },
   { timestamps: true, collection: "course_sections" }
 );
