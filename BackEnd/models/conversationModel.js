@@ -11,7 +11,7 @@ const ConversationSchema = new Schema(
       default: "sending",
     },
   },
-  { timestamps: true }
+  { timestamps: true, collection: "conversations" }
 );
 
 ConversationSchema.index({ participants: 1 });

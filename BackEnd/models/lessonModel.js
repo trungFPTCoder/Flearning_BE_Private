@@ -8,7 +8,7 @@ const LessonSchema = new Schema(
     content: String,
     videoUrl: String,
   },
-  { timestamps: true }
+  { timestamps: true, collection: "lessons" }
 );
 
 module.exports = mongoose.model("Lesson", LessonSchema);

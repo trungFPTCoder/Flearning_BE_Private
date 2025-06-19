@@ -22,7 +22,7 @@ const UserSchema = new Schema(
     enrolledCourses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
     userImage: String,
   },
-  { timestamps: true }
+  { timestamps: true, collection: "users" }
 );
 
 module.exports = mongoose.model("User", UserSchema);
