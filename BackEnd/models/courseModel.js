@@ -29,7 +29,7 @@ const CourseSchema = new Schema(
     subtitleLanguage: { type: String, enum: ["vietnam", "english"] },
     sections: [{ type: Schema.Types.ObjectId, ref: "Section" }],
   },
-  { timestamps: true }
+  { timestamps: true, collection: "courses" }
 );
 
 module.exports = mongoose.model("Course", CourseSchema);
