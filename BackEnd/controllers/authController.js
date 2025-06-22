@@ -61,19 +61,39 @@ exports.register = async (req, res) => {
  */
 exports.verifyEmail = async (req, res) => {
     try {
-        const token = await Token.findOne({ token: req.params.token });
-        if (!token) return res.status(400).send("Liên kết không hợp lệ hoặc đã hết hạn.");
+        // LOG 1: Xem backend nhận được token gì từ URL
+        const receivedToken = req.params.token;
+        console.log("Backend đã nhận được token từ URL:", receivedToken);
 
-        const user = await User.findById(token.userId);
-        if (!user) return res.status(400).send("Không tìm thấy người dùng.");
-        if (user.status === 'verified') return res.status(200).send("Email này đã được xác thực trước đó.");
+        // LOG 2: Tìm kiếm token này trong database
+        const tokenDocument = await Token.findOne({ token: receivedToken });
+
+        // LOG 3: In kết quả tìm kiếm ra
+        // Nếu kết quả là 'null', nghĩa là không tìm thấy.
+        console.log("Kết quả tìm kiếm token trong DB (Token.findOne):", tokenDocument);
+
+        if (!tokenDocument) {
+            // Thêm ghi chú vào response để dễ debug hơn
+            return res.status(400).send("Liên kết không hợp lệ hoặc đã hết hạn (không tìm thấy token trong DB).");
+        }
+
+        const user = await User.findById(tokenDocument.userId);
+        if (!user) {
+            return res.status(400).send("Không tìm thấy người dùng.");
+        }
+
+        if (user.status === 'verified') {
+            await tokenDocument.deleteOne();
+            return res.status(200).send("Tài khoản này đã được xác thực trước đó.");
+        }
 
         user.status = "verified";
         await user.save();
-        await token.deleteOne();
+        await tokenDocument.deleteOne();
 
-        res.status(200).send("Email đã được xác thực thành công. Bạn có thể đóng cửa sổ này và đăng nhập.");
+        res.status(200).send("Email đã được xác thực thành công.");
     } catch (error) {
+        console.error("Đã có lỗi trong hàm verifyEmail:", error);
         res.status(500).json({ message: "Lỗi máy chủ", error: error.message });
     }
 };
@@ -88,23 +108,27 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email }).select('+password');
 
+        // 1. Kiểm tra user có tồn tại không
         if (!user) {
-            return res.status(404).json({ message: "Email hoặc mật khẩu không đúng." });
-        }
-
-        if (!user.password) {
-            return res.status(403).json({ message: "Tài khoản này được đăng ký bằng Google. Vui lòng đăng nhập bằng Google." });
+            // Nếu không có user, trả về lỗi mật khẩu sai luôn
+            return res.status(400).json({ message: "Email hoặc mật khẩu không đúng." });
         }
         
-        if (user.status === 'unverified') {
-            return res.status(403).json({ message: "Vui lòng xác thực email của bạn trước khi đăng nhập." });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
+        // 2. Kiểm tra mật khẩu ĐẦU TIÊN (đã bỏ qua bước kiểm tra password null)
+        const isMatch = await bcrypt.compare(password, user.password || ''); // So sánh với chuỗi rỗng nếu password là null
         if (!isMatch) {
             return res.status(400).json({ message: "Email hoặc mật khẩu không đúng." });
         }
 
+        // 3. CHỈ KHI mật khẩu đúng, MỚI kiểm tra đến status
+        if (user.status === 'unverified') {
+            return res.status(403).json({ 
+                message: "Vui lòng xác thực email của bạn trước khi đăng nhập.",
+                errorCode: 'ACCOUNT_NOT_VERIFIED' 
+            });
+        }
+        
+        // Nếu tất cả đều qua, đăng nhập thành công
         const { accessToken, refreshToken } = generateTokens(user);
         res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
@@ -241,4 +265,48 @@ exports.refreshToken = async (req, res) => {
 exports.logout = (req, res) => {
     res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
     res.status(200).json({ message: "Đăng xuất thành công." });
+};
+
+/**
+ * @desc    Resend verification email
+ * @route   POST /api/auth/resend-verification
+ * @access  Public
+ */
+exports.resendVerificationEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "Vui lòng cung cấp email." });
+        }
+
+        const user = await User.findOne({ email });
+
+        // Vẫn trả về thành công nếu không tìm thấy user để tránh bị dò email
+        if (!user) {
+            return res.status(200).json({ message: "Nếu email này đã được đăng ký, một liên kết xác thực mới đã được gửi." });
+        }
+        
+        // Nếu tài khoản đã được xác thực rồi
+        if (user.status === 'verified') {
+            return res.status(400).json({ message: "Tài khoản này đã được xác thực." });
+        }
+
+        // Xóa token cũ nếu có
+        await Token.findOneAndDelete({ userId: user._id });
+
+        // Tạo và gửi token mới
+        const verificationToken = crypto.randomBytes(32).toString("hex");
+        await new Token({ userId: user._id, token: verificationToken }).save();
+        
+        const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+        const htmlMessage = `<p>Vui lòng nhấp vào nút dưới đây để xác thực email của bạn:</p><a href="${verificationUrl}" target="_blank">Verify Email</a>`;
+        
+        await sendEmail(user.email, "Xác thực Email", htmlMessage);
+        
+        res.status(200).json({ message: "Một liên kết xác thực mới đã được gửi đến email của bạn." });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Lỗi máy chủ" });
+    }
 };
