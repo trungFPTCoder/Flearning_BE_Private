@@ -1,9 +1,11 @@
 const Wishlist = require('../models/wishlistModel');
 require('../models/courseModel'); 
 const wishlistController = {
-    // Xem danh sách yêu thích: Lấy danh sách các khóa học trong wishlist.
-    // just students can view their own wishlist
-    // GET /api/wishlist/:userId
+    /**
+     * @desc    Xem danh sách yêu thích: Lấy danh sách các khóa học trong wishlist.
+     * @route   GET /api/wishlist/:userId
+     * @access  Student
+     */
     viewWishlist: async (req, res) => {
         try {
             const userId = req.params.userId;
@@ -17,9 +19,11 @@ const wishlistController = {
             res.status(500).json({ message: error.message });
         }
     },
-    // Thêm vào yêu thích: Thêm một khóa học vào wishlist.
-    // just students can add courses to their own wishlist
-    // POST /api/wishlist
+    /**
+     * @desc    Thêm vào danh sách yêu thích: Thêm một khóa học vào wishlist.
+     * @route   POST /api/wishlist
+     * @access  Student
+     */
     addToWishlist: async (req, res) => {
         try {
             const { userId, courseId } = req.body;
@@ -40,9 +44,11 @@ const wishlistController = {
             res.status(500).json({ message: error.message });
         }
     },
-    // Xóa khỏi yêu thích: Xóa một khóa học khỏi wishlist.
-    // just students can remove courses from their own wishlist
-    // DELETE /api/wishlist/?userId=<userId>&courseId=<courseId>
+    /**
+     * @desc    Xóa khỏi danh sách yêu thích: Xóa một khóa học khỏi wishlist.
+     * @route   DELETE /api/wishlist/?userId=<userId>&courseId=<courseId>
+     * @access  Student
+     */
     removeFromWishlist: async (req, res) => {
         try {
             const { userId, courseId } = req.query;
