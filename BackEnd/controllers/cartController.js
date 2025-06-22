@@ -1,8 +1,10 @@
 const Cart = require('../models/cartModel');
 const cartController = {
-    // Xem giỏ hàng: Lấy danh sách các khóa học trong giỏ hàng.
-    // just student can access this route
-    // GET /api/cart/:userId
+    /**
+     * @desc    Xem giỏ hàng: Lấy danh sách các khóa học trong giỏ hàng.
+     * @route   GET /api/cart/:userId
+     * @access  Student
+     */
     getCart: async (req, res) => {
         try {
             const userId = req.params.userId;
@@ -18,9 +20,11 @@ const cartController = {
             res.status(500).json({ message: error.message });
         }
     },
-    // Thêm vào giỏ hàng: Thêm một khóa học vào giỏ hàng.
-    // just student can access this route
-    // POST /api/cart
+    /**
+     * @desc    Thêm vào giỏ hàng: Thêm một khóa học vào giỏ hàng.
+     * @route   POST /api/cart
+     * @access  Student
+     */
     addToCart: async (req, res) => {
         try {
             const { userId, courseId } = req.body;
@@ -43,9 +47,11 @@ const cartController = {
             res.status(500).json({ message: error.message });
         }
     },
-    // Xóa khỏi giỏ hàng: Xóa một khóa học khỏi giỏ hàng.
-    // just student can access this route
-    // DELETE /api/cart/?userId=<userId>&courseId=<courseId>
+    /**
+     * @desc    Xóa khỏi giỏ hàng: Xóa một khóa học khỏi giỏ hàng.
+     * @route   DELETE /api/cart/?userId=<userId>&courseId=<courseId>
+     * @access  Student
+     */
     removeFromCart: async (req, res) => {
         try {
             const { userId, courseId } = req.query;
