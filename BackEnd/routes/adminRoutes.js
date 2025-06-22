@@ -10,6 +10,14 @@ const {
   getCourseById,
   updateCourse,
   deleteCourse,
+  createSection,
+  getCourseSections,
+  updateSection,
+  deleteSection,
+  createLesson,
+  updateLesson,
+  deleteLesson,
+  getLesson,
 } = require("../controllers/adminController");
 const authorize = require("../middlewares/authMiddleware");
 
@@ -28,5 +36,17 @@ router.post("/courses", createCourse);
 router.get("/courses/:courseId", getCourseById);
 router.put("/courses/:courseId", updateCourse);
 router.delete("/courses/:courseId", deleteCourse);
+
+// Section management routes
+router.post("/courses/:courseId/sections", createSection);
+router.get("/courses/:courseId/sections", getCourseSections);
+router.put("/courses/:courseId/sections/:sectionId", updateSection);
+router.delete("/courses/:courseId/sections/:sectionId", deleteSection);
+
+// Lesson management routes
+router.post("/courses/:courseId/sections/:sectionId/lessons", createLesson);
+router.put("/courses/:courseId/lessons/:lessonId", updateLesson);
+router.delete("/courses/:courseId/lessons/:lessonId", deleteLesson);
+router.get("/courses/:courseId/lessons/:lessonId", getLesson);
 
 module.exports = router;
