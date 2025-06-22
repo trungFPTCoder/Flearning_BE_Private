@@ -9,11 +9,10 @@ const Category = require('../models/categoryModel');
 const courseController = {
     // Lấy danh sách khóa học: Hỗ trợ lọc, sắp xếp và phân trang. Dùng cho các use case: View Courses, Filter, Sort.
     // everybody can access this route 
-    // 
     getAllCourses: async (req, res) => {
         try {
             const courses = await Course.find()
-                .populate('categoryId') // Lấy toàn bộ thông tin category
+                .populate('categoryId') // Populate categoryId to get category details
                 .populate('discountId')
                 .populate('sections');
             if (!courses || courses.length === 0) {
@@ -26,6 +25,8 @@ const courseController = {
     },
     // Tìm kiếm khóa học: Trả về danh sách khóa học dựa trên từ khóa.(title and description)
     // everybody can access this route
+    // GET api/courses/search?keyword=<keyword>
+    // Example: api/courses/search?keyword=This course teaches the fundamentals
     searchCourses: async (req, res) => {
         try {
             const { keyword } = req.query;
