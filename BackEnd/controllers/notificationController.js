@@ -1,8 +1,10 @@
 const Notification = require('../models/notificationModel');
 const notificationController = {
-    // Nhận thông báo: Lấy danh sách thông báo cho người dùng đã đăng nhập, hỗ trợ phân trang.
-    // just student can access this route
-    // api/notifications/:userId?page=1&limit=10
+    /**
+     * @desc    Nhận thông báo: Lấy danh sách thông báo cho người dùng đã đăng nhập, hỗ trợ phân trang.
+     * @route   GET /api/notifications/:userId?page=1&limit=10
+     * @access  Student
+     */
     getNotifications: async (req, res) => {
         try {
             const userId = req.params.userId;

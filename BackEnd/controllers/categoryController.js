@@ -1,8 +1,10 @@
 const Category = require("../models/categoryModel");
 const CategoryController = {
-    // Lấy danh mục hàng đầu: Lấy danh sách các danh mục phổ biến nhất. (limit 12 categories)
-    // everybody can access this route
-    // api/categories/top
+    /**
+     * @desc    Lấy danh mục hàng đầu: Lấy danh sách các danh mục phổ biến nhất. (limit 12 categories)
+     * @route   GET /api/categories/top
+     * @access  Public
+     */
     getTopCategories: async (req, res) => {
         try {
             const categories = await Category.aggregate([

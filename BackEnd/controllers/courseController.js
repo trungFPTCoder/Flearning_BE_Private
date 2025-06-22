@@ -7,8 +7,11 @@ const Discount = require('../models/discountModel');
 const section = require('../models/sectionModel');
 const Category = require('../models/categoryModel');
 const courseController = {
-    // Lấy danh sách khóa học: Hỗ trợ lọc, sắp xếp và phân trang. Dùng cho các use case: View Courses, Filter, Sort.
-    // everybody can access this route 
+    /**
+     * @desc    Lấy danh sách khóa học: Hỗ trợ lọc, sắp xếp và phân trang. Dùng cho các use case: View Courses, Filter, Sort.
+     * @route   GET /api/courses
+     * @access  Public
+     */
     getAllCourses: async (req, res) => {
         try {
             const courses = await Course.find()
@@ -23,10 +26,12 @@ const courseController = {
             res.status(500).json({ message: error.message })
         }
     },
-    // Tìm kiếm khóa học: Trả về danh sách khóa học dựa trên từ khóa.(title and description)
-    // everybody can access this route
-    // GET api/courses/search?keyword=<keyword>
-    // Example: api/courses/search?keyword=This course teaches the fundamentals
+    /**
+     * @desc    Tìm kiếm khóa học: Trả về danh sách khóa học dựa trên từ khóa.(title and description)
+     * @route   GET api/courses/search?keyword=<keyword>
+     * @access  Public
+     * Example: api/courses/search?keyword=This course teaches the fundamentals
+     */
     searchCourses: async (req, res) => {
         try {
             const { keyword } = req.query;
@@ -47,9 +52,11 @@ const courseController = {
             res.status(500).json({ message: error.message });
         }
     },
-    // Lấy khóa học bán chạy: Lấy danh sách các khóa học hàng đầu.
-    // everybody can access this route
-    // api/courses/top-selling?limit=...
+    /**
+     * @desc    Lấy khóa học bán chạy: Lấy danh sách các khóa học hàng đầu.
+     * @route   GET api/courses/top-selling?limit=...
+     * @access  Public
+     */
     getTopCourses: async (req, res) => {
         try {
             const limit = parseInt(req.query.limit) || 5; // Default to 5 if not provided
@@ -76,9 +83,12 @@ const courseController = {
             res.status(500).json({ message: error.message });
         }
     },
-    // Lấy khóa học mới: Lấy danh sách các khóa học được thêm gần đây.
-    // everybody can access this route
-    // api/courses/recently-added?limit=...
+
+    /**
+     * @desc    Lấy khóa học mới: Lấy danh sách các khóa học được thêm gần đây.
+     * @route   GET /api/courses/recently-added?limit=...
+     * @access  Public
+     */
     getNewCourses: async (req, res) => {
         try {
             const limit = parseInt(req.query.limit) || 5; // Default to 5 if not provided
@@ -96,8 +106,5 @@ const courseController = {
             res.status(500).json({ message: error.message });
         }
     },
-    
-
-
 }
 module.exports = courseController;
