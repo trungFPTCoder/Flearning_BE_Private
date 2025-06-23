@@ -21,6 +21,9 @@ exports.getUsers = async (req, res) => {
       status = "",
       sortBy = "createdAt",
       sortOrder = "desc",
+      fromDate,
+      toDate,
+      dateFilter,
     } = req.query;
 
     // Build query object
@@ -44,6 +47,32 @@ exports.getUsers = async (req, res) => {
     // Filter by status
     if (status) {
       query.status = status;
+    }
+
+    // Date filtering
+    if (dateFilter === "today") {
+      const today = new Date();
+      const startOfDay = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+      const endOfDay = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 1
+      );
+      query.createdAt = { $gte: startOfDay, $lt: endOfDay };
+    } else if (dateFilter === "month") {
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      query.createdAt = { $gte: startOfMonth, $lt: endOfMonth };
+    } else if (fromDate && toDate) {
+      query.createdAt = {
+        $gte: new Date(fromDate),
+        $lte: new Date(toDate),
+      };
     }
 
     // Build sort object
