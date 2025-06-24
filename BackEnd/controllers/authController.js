@@ -183,32 +183,58 @@ exports.googleLogin = async (req, res) => {
 };
 
 /**
- * @desc    Request password reset link
- * @route   POST /api/auth/forgot-password
+ * @desc    Login user with email and password
+ * @route   POST /api/auth/login
  * @access  Public
  */
-exports.forgotPassword = async (req, res) => {
+exports.login = async (req, res) => {
     try {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
+        const { email, password } = req.body;
+        const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
-            return res.status(200).json({ message: 'Nếu email tồn tại, một liên kết đặt lại mật khẩu đã được gửi.' });
+            return res.status(400).json({ message: "Email hoặc mật khẩu không đúng." });
+        }
+        
+        const isMatch = await bcrypt.compare(password, user.password || '');
+        if (!isMatch) {
+            return res.status(400).json({ message: "Email hoặc mật khẩu không đúng." });
         }
 
-        let token = await Token.findOne({ userId: user._id });
-        if (token) await token.deleteOne();
+        // --- THAY ĐỔI Ở ĐÂY: Dùng switch-case để kiểm tra status ---
+        // Logic này chỉ chạy sau khi đã xác thực mật khẩu thành công.
+        switch (user.status) {
+            case 'verified':
+                // Nếu status là 'verified', không làm gì cả và đi tiếp đến phần tạo token.
+                break; 
+            
+            case 'unverified':
+                return res.status(403).json({ 
+                    message: "Vui lòng xác thực email của bạn trước khi đăng nhập.",
+                    errorCode: 'ACCOUNT_NOT_VERIFIED' 
+                });
 
-        const resetToken = crypto.randomBytes(32).toString("hex");
-        await new Token({ userId: user._id, token: resetToken }).save();
+            case 'banned':
+                return res.status(403).json({ 
+                    message: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.",
+                    errorCode: 'ACCOUNT_BANNED' 
+                });
+
+            default:
+                // Xử lý các trường hợp status không xác định khác nếu có
+                return res.status(500).json({ message: 'Trạng thái tài khoản không xác định.' });
+        }
         
-        const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-        const htmlMessage = `<p>Vui lòng nhấp vào nút dưới đây để đặt lại mật khẩu (liên kết có hiệu lực trong 1 giờ):</p><a href="${resetUrl}" target="_blank">Đặt lại mật khẩu</a>`;
-        
-        await sendEmail(user.email, "Yêu cầu đặt lại mật khẩu", htmlMessage);
-        res.status(200).json({ message: 'Nếu email tồn tại, một liên kết đặt lại mật khẩu đã được gửi.' });
+        // Nếu tất cả đều qua (chỉ trường hợp status = 'verified'), đăng nhập thành công
+        const { accessToken, refreshToken } = generateTokens(user);
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+
+        const userObject = user.toObject();
+        delete userObject.password;
+
+        res.status(200).json({ accessToken, user: userObject });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi máy chủ" });
+        res.status(500).json({ message: "Lỗi máy chủ", error: error.message });
     }
 };
 
